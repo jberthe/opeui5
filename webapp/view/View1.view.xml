@@ -4,7 +4,9 @@
 			<pages>
 				<Page id="page" title="{i18n>title}">
 					<content>
-						<Text text="toto"/>
+                    <Text text="toto"/>
+						<Text text="toto1"/>
+						<Text text="toto2"/>
 					</content>
 				</Page>
 			</pages>

@@ -1,0 +1,54 @@
+# Use the latest 2.1 version of CircleCI pipeline process engine.
+# See: https://circleci.com/docs/2.0/configuration-reference
+version: 2.1
+
+# Define a job to be invoked later in a workflow.
+# See: https://circleci.com/docs/2.0/configuration-reference/#jobs
+jobs:
+  start_vpn:
+    # Specify the execution environment. You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.
+    # See: https://circleci.com/docs/2.0/configuration-reference/#docker-machine-macos-windows-executor
+    machine:
+      image: ubuntu-2004:202201-02
+
+    # Add steps to the job
+    # See: https://circleci.com/docs/2.0/configuration-reference/#steps
+    steps:
+      - checkout
+      - run:
+          name: "Node JS"
+          command: |
+            cd ~
+            curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash
+            nvm install v14.17.6
+
+      - run:
+          name : "Install dependences"
+          command: |
+            pwd
+            rm package-lock.json
+            npm install
+            ls
+
+      - run:
+          name: "Install Tunnel VPN"
+          command: sudo apt update && sudo apt install openvpn openconnect
+
+      - run:
+          name : "Connect to VPN"
+          background: true
+          command: echo "Vivelepfl1234" | sudo openconnect vpn-guest.epfl.ch --user=berthe@vpnaga.g.epfl.ch --passwd-on-stdin
+      - run:
+          name: "test VPN Connection"
+          command: ping -c 5 sapghd1.epfl.ch
+
+      - run:
+          name : "Deploy"
+          command : npm run deploy
+
+# Invoke jobs via work|flows
+# See: https://circleci.com/docs/2.0/configuration-reference/#workflows
+workflows:
+  say-hello-workflow:
+    jobs:
+      - start_vpn
